@@ -1,0 +1,26 @@
+(library
+ (name webextension_polyfill)
+ (libraries ts2ocaml-jsoo-stdlib gen_js_api)
+ (js_of_ocaml
+  (javascript_files stub.js))
+ (preprocess
+  (pps gen_js_api.ppx)))
+
+(rule
+ (targets webextension_polyfill.mli stub.js)
+ (action
+  (run
+   ts2ocaml
+   jsoo
+   %{project_root}/../../node_modules/@types/webextension-polyfill/index.d.ts
+   --merge
+   --follow-relative-references
+   --preset=full
+   --output-dir=.
+   --nowarn)))
+
+(rule
+ (targets webextension_polyfill.ml)
+ (deps webextension_polyfill.mli)
+ (action
+  (run %{bin:gen_js_api} %{deps})))
